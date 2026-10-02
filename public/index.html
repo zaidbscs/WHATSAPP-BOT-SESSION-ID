@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Pairing Code</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; max-width: 600px; margin: 50px auto; text-align: center; padding: 20px; background: #f4f4f9; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h2 { color: #075E54; }
+        p { color: #555; }
+        input { padding: 12px; width: 80%; font-size: 16px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; text-align: center; }
+        button { padding: 12px 25px; font-size: 16px; cursor: pointer; background: #25D366; color: white; border: none; border-radius: 5px; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #128C7E; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        #result { margin-top: 25px; font-size: 32px; font-weight: bold; color: #075E54; letter-spacing: 3px; min-height: 40px; }
+        .info { color: #666; font-size: 14px; margin-top: 20px; background: #fff; padding: 15px; border-radius: 5px; text-align: left; display: inline-block; max-width: 90%; }
+        .spinner { border: 4px solid rgba(0, 0, 0, 0.1); width: 36px; height: 36px; border-radius: 50%; border-left-color: #075E54; animation: spin 1s linear infinite; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <h2>WhatsApp Pairing Code Generator</h2>
+    <p>Enter your phone number with country code (e.g., 923357433862)</p>
+
+    <input type="text" id="phone" placeholder="923357433862">
+    <br>
+    <button id="submitBtn" onclick="getCode()">Get Pairing Code</button>
+
+    <div id="loading" style="display:none; margin-top:20px;"><div class="spinner"></div></div>
+    <div id="result"></div>
+    <div id="status" class="info" style="display:none;"></div>
+
+    <script>
+        async function getCode() {
+            const phone = document.getElementById('phone').value;
+            const resultDiv = document.getElementById('result');
+            const statusDiv = document.getElementById('status');
+            const loadingDiv = document.getElementById('loading');
+            const btn = document.getElementById('submitBtn');
+
+            if (!phone) {
+                alert('Please enter a phone number');
+                return;
+            }
+
+            btn.disabled = true;
+            loadingDiv.style.display = 'block';
+            resultDiv.innerText = '';
+            statusDiv.style.display = 'none';
+
+            try {
+                const response = await fetch('/get-pairing-code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phoneNumber: phone })
+                });
+
+                const data = await response.json();
+                loadingDiv.style.display = 'none';
+                btn.disabled = false;
+
+                if (data.success) {
+                    resultDiv.innerText = data.code;
+                    statusDiv.style.display = 'inline-block';
+                    statusDiv.innerHTML = `
+                        <p><b>Instructions to connect:</b></p>
+                        <p>1. Open WhatsApp on your phone.</p>
+                        <p>2. Go to <b>Settings / Menu > Linked Devices > Link a device</b>.</p>
+                        <p>3. Tap <b>"Link with phone number instead"</b> at the bottom.</p>
+                        <p>4. Select your country, enter your number, and type the code above.</p>
+                        <p><i>Wait ~10 seconds after entering the code. The creds.json file will be sent to your WhatsApp automatically!</i></p>
+                    `;
+                } else {
+                    resultDiv.innerText = 'Error';
+                    statusDiv.style.display = 'inline-block';
+                    statusDiv.innerText = data.error || 'Failed to generate code. Check terminal for details.';
+                }
+            } catch (error) {
+                loadingDiv.style.display = 'none';
+                resultDiv.innerText = 'Server Error';
+                statusDiv.style.display = 'inline-block';
+                statusDiv.innerText = 'Could not connect to the server.';
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
