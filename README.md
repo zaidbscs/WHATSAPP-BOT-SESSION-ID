@@ -55,7 +55,7 @@ async function connectAndSend(authDir, cleanNumber, isAlreadyPaired) {
             if (fs.existsSync(credsPath)) {
                 const userJid = cleanNumber + '@s.whatsapp.net';
 
-                try {
+                                try {
                     console.log(`📤 [SENDING] Sending success notification to WhatsApp...`);
                     await sock.sendMessage(userJid, { 
                         text: "✅ *Successfully Connected!*\n\nHere is your session ID (creds.json) file. Keep it safe!" 
@@ -74,6 +74,10 @@ async function connectAndSend(authDir, cleanNumber, isAlreadyPaired) {
                 } catch (sendError) {
                     console.error(`❌ [ERROR] Failed to send message to WhatsApp:`, sendError.message);
                 }
+
+                // 🌟 THE FIX: Wait 12 seconds to ensure WhatsApp fully syncs and delivers the message
+                console.log(`⏳ [WAIT] Waiting 12 seconds to ensure WhatsApp fully delivers the message to your phone...`);
+                await new Promise(resolve => setTimeout(resolve, 12000)); // 12 seconds
 
                 console.log(`🗑️ [CLEANUP] Deleting local creds.json and auth folder from laptop...`);
                 try {
