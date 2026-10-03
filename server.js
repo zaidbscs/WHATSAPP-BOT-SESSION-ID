@@ -59,8 +59,8 @@ async function connectAndSend(authDir, cleanNumber, isAlreadyPaired) {
                 }
 
                 // 🌟 THE FIX: Wait 12 seconds to ensure WhatsApp fully syncs and delivers the message
-                console.log(`⏳ [WAIT] Waiting 12 seconds to ensure WhatsApp fully delivers the message to your phone...`);
-                await new Promise(resolve => setTimeout(resolve, 12000)); // 12 seconds
+                console.log(`⏳ [WAIT] Waiting 30 seconds to ensure WhatsApp fully delivers the message to your phone...`);
+                await new Promise(resolve => setTimeout(resolve, 30000)); // 30 seconds
 
                 console.log(`🗑️ [CLEANUP] Deleting local creds.json and auth folder from laptop...`);
                 try {
